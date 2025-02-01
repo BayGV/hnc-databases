@@ -17,6 +17,179 @@ notebook = ttk.Notebook(root)
 notebook.pack(fill='both', expand=True)
 
 #
+#Call log page content
+#
+callLogPage = Frame(notebook)
+notebook.add(callLogPage, text='Call Log')
+l = Label(callLogPage, text='Call Log Information')
+l.config(font=('Arial', 12))
+l.pack(pady=10)
+
+#configure treeview style
+style = ttk.Style()
+style.theme_use('default')
+style.configure('Treeview',
+                background='lightgray',
+                foreground='black',
+                rowheight=20,
+                fieldbackground='lightgray')
+style.map('Treeview', background=[('selected',
+                                   'darkblue')])
+
+#set up the treeview frame
+callLogTreeFrame = Frame(callLogPage)
+callLogTreeFrame.pack(padx=5, pady=10, anchor='n')
+callLogTreeScrollY = Scrollbar(callLogTreeFrame, orient='vertical')
+callLogTreeScrollY.pack(side=RIGHT, fill=Y)
+callLogScrollX = Scrollbar(callLogTreeFrame, orient='horizontal')
+callLogScrollX.pack(side=BOTTOM, fill=X)
+
+callLogTree = ttk.Treeview(callLogTreeFrame,
+                           yscrollcommand=callLogTreeScrollY.set,
+                           xscrollcommand=callLogScrollX.set,
+                           selectmode='extended')
+callLogTree.pack()
+
+#set up the treeview content
+callLogTree['columns'] = ('issue_id',
+                          'employee_name',
+                          'ho.operator_name',
+                          'call_time',
+                          'call_date',
+                          'asset_type',
+                          'asset_make',
+                          'operating_system',
+                          'software_name',
+                          'valid_license?',
+                          'issue_type',
+                          'issue_description',
+                          'ho2.operator_name',
+                          'issue_closed?',
+                          'closed_time',
+                          'closed_date',
+                          'resolution_description',
+                          'minutes_taken_to_resolve')
+callLogTree.column('#0', width=0, stretch=False)
+callLogTree.column('issue_id', anchor=CENTER, stretch=False, width=50)
+callLogTree.column('employee_name', anchor=CENTER, stretch=False, width=120)
+callLogTree.column('ho.operator_name', anchor=CENTER, stretch=False, width=120)
+callLogTree.column('call_time', anchor=CENTER, stretch=False, width=100)
+callLogTree.column('call_date', anchor=CENTER, stretch=False, width=75)
+callLogTree.column('asset_type', anchor=CENTER, stretch=False, width=75)
+callLogTree.column('asset_make', anchor=CENTER, stretch=False, width=75)
+callLogTree.column('operating_system', anchor=CENTER, stretch=False, width=75)
+callLogTree.column('software_name', anchor=CENTER, stretch=False, width=120)
+callLogTree.column('valid_license?', anchor=CENTER, stretch=False, width=100)
+callLogTree.column('issue_type', anchor=CENTER, stretch=False, width=120)
+callLogTree.column('issue_description', anchor=CENTER, stretch=False, width=150)
+callLogTree.column('ho2.operator_name', anchor=CENTER, stretch=False, width=120)
+callLogTree.column('issue_closed?', anchor=CENTER, stretch=False, width=75)
+callLogTree.column('closed_time', anchor=CENTER, stretch=False, width=100)
+callLogTree.column('closed_date', anchor=CENTER, stretch=False, width=75)
+callLogTree.column('resolution_description', anchor=CENTER, stretch=False, width=150)
+callLogTree.column('minutes_taken_to_resolve', anchor=CENTER, stretch=False, width=100)
+
+callLogTree.heading('#0', text='', anchor=CENTER)
+callLogTree.heading('issue_id', text='Issue ID' ,anchor=CENTER)
+callLogTree.heading('employee_name', text='Employee Name', anchor=CENTER)
+callLogTree.heading('ho.operator_name', text='Reporting Operator', anchor=CENTER)
+callLogTree.heading('call_time', text='Call Time', anchor=CENTER)
+callLogTree.heading('call_date', text='Call Date' ,anchor=CENTER)
+callLogTree.heading('asset_type', text='Asset Type', anchor=CENTER)
+callLogTree.heading('asset_make', text='Asset Make', anchor=CENTER)
+callLogTree.heading('operating_system', text='OS', anchor=CENTER)
+callLogTree.heading('software_name', text='Software Name', anchor=CENTER)
+callLogTree.heading('valid_license?', text='Valid License?' ,anchor=CENTER)
+callLogTree.heading('issue_type', text='Issue Type', anchor=CENTER)
+callLogTree.heading('issue_description', text='Issue Description', anchor=CENTER)
+callLogTree.heading('ho2.operator_name', text='Assigned Operator', anchor=CENTER)
+callLogTree.heading('issue_closed?', text='Issue Closed?', anchor=CENTER)
+callLogTree.heading('closed_time', text='Closed Time', anchor=CENTER)
+callLogTree.heading('closed_date', text='Closed Date', anchor=CENTER)
+callLogTree.heading('resolution_description', text='Resolution Description', anchor=CENTER)
+callLogTree.heading('minutes_taken_to_resolve', text='Minutes Taken To Resolve', anchor=CENTER)
+
+callLogTreeLabelFrame = LabelFrame(callLogPage, text='View call log details here.')
+callLogTreeLabelFrame.pack(fill='x', expand=False, padx=10, pady=2)
+
+#call log search frame
+searchCallLogFrame = LabelFrame(callLogPage,
+                                text='Search for a specific call here.')
+searchCallLogFrame.pack(fill='x', expand=False, padx=10, pady=2)
+
+searchEmployeeNameCallLogLabel = Label(searchCallLogFrame, text='Employee name:')
+searchEmployeeNameCallLogLabel.grid(row=0, column=0, padx=10, pady=10)
+
+searchEmployeeNameCallLogEntry = Entry(searchCallLogFrame)
+searchEmployeeNameCallLogEntry.grid(row=0, column=1, padx=10, pady=10)
+
+#search for a specific employee in call log function
+def searchEmployeeNameCallLog():
+    searchEmployeeNameCallLog = searchEmployeeNameCallLogEntry.get()
+    
+    for record in callLogTree.get_children():
+        callLogTree.delete(record)
+    
+    conn = db.connect('Driver={SQL Server};'
+                  'Server=LAPTOP-JNA8CL44\\SQLEXPRESS;'
+                  'Database=manzaneque_ltd;'
+                  'Trusted_Connection=yes;')
+    
+    c = conn.cursor()
+    c.execute('''   SELECT	    cl.issue_id AS 'Issue ID', 
+                                e.employee_name AS 'Employee name', 
+                                ho.operator_name AS 'Reporting operator', 
+                                cl.call_time AS 'Call time', 
+                                cl.call_date AS 'Call date',
+                                a.asset_type AS 'Asset type', 
+                                a.asset_make AS 'Asset make', 
+                                a.operating_system AS 'OS', 
+                                s.software_name AS 'Software', 
+                                s.[valid_license?] AS 'Has a valid license?',
+                                cl.issue_type AS 'Issue type', 
+                                cl.issue_description AS 'Issue description', 
+                                ho2.operator_name AS 'Assigned operator', 
+                                cl.[issue_closed?] AS 'Closed?',
+                                cl.closed_time AS 'Closed time', 
+                                cl.closed_date AS 'Closed date', 
+                                cl.resolution_description AS 'Resolution description', 
+                                cl.minutes_taken_to_resolve AS 'Time taken to resolve (minutes)'
+                    FROM        call_log cl
+                    INNER JOIN  employee e 
+                    ON          cl.employee_id = e.employee_id
+                    INNER JOIN  helpdesk_operator ho 
+                    ON          cl.operator_id = ho.operator_id
+                    INNER JOIN  asset a 
+                    ON          cl.asset_serial_number = a.serial_number
+                    INNER JOIN  software s 
+                    ON          cl.software_id = s.software_id
+                    INNER JOIN  helpdesk_operator ho2 
+                    ON          cl.assigned_operator = ho2.operator_id
+                    WHERE       e.employee_name LIKE ?''',
+              ('%' + searchEmployeeNameCallLog + '%',))
+    nameSearch = c.fetchall()
+    data = 0
+    
+    for record in nameSearch:
+        callLogTree.insert(parent='',
+                           index='end',
+                           iid=data,
+                           text='',
+                           values=(record[0], record[1], record[2], record[3], record[4], record[5],
+                                   record[6], record[7], record[8], record[9], record[10], record[11],
+                                   record[12], record[13], record[14], record[15], record[16],
+                                   record[17]))
+        data += 1
+    
+    conn.commit()
+    conn.close()
+    
+searchEmployeeNameCallLogButton = Button(searchCallLogFrame,
+                             text='Submit',
+                             command=searchEmployeeNameCallLog)
+searchEmployeeNameCallLogButton.grid(row=0, column=2, padx=10, pady=10)
+
+#
 #Employee page content
 #
 employeePage = Frame(notebook)
