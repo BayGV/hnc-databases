@@ -117,11 +117,112 @@ searchCallLogFrame = LabelFrame(callLogPage,
                                 text='Search for a specific call here.')
 searchCallLogFrame.pack(fill='x', expand=False, padx=10, pady=2)
 
+searchIssueIdCallLogLabel = Label(searchCallLogFrame, text='Issue ID:')
+searchIssueIdCallLogLabel.grid(row=0, column=0, padx=10, pady=10)
+
+searchIssueIdCallLogEntry = Entry(searchCallLogFrame)
+searchIssueIdCallLogEntry.grid(row=0, column=1, padx=10, pady=10)
+
 searchEmployeeNameCallLogLabel = Label(searchCallLogFrame, text='Employee name:')
-searchEmployeeNameCallLogLabel.grid(row=0, column=0, padx=10, pady=10)
+searchEmployeeNameCallLogLabel.grid(row=0, column=4, padx=10, pady=10)
 
 searchEmployeeNameCallLogEntry = Entry(searchCallLogFrame)
-searchEmployeeNameCallLogEntry.grid(row=0, column=1, padx=10, pady=10)
+searchEmployeeNameCallLogEntry.grid(row=0, column=5, padx=10, pady=10)
+
+searchIssueTypeCallLogLabel = Label(searchCallLogFrame, text='Issue type:')
+searchIssueTypeCallLogLabel.grid(row=0, column=8, padx=10, pady=10)
+
+#setting the issue types
+issueType = ['Password reset', 'Software update', 'MFA', 'Hardware', 'Networking',
+             'Permissions']
+issueTypeVariable = StringVar(searchCallLogFrame)
+
+searchIssueTypeCallLogEntry = OptionMenu(searchCallLogFrame, issueTypeVariable,
+                                         *issueType)
+searchIssueTypeCallLogEntry.grid(row=0, column=9, padx=10, pady=10)
+
+searchAssetMakeCallLogLabel = Label(searchCallLogFrame, text='Asset make:')
+searchAssetMakeCallLogLabel.grid(row=0, column=12, padx=10, pady=10)
+
+searchAssetMakeCallLogEntry = Entry(searchCallLogFrame)
+searchAssetMakeCallLogEntry.grid(row=0, column=13, padx=10, pady=10)
+
+#operator call log search frame
+searchOperatorCallLogFrame = LabelFrame(callLogPage,
+                                text='Search for open operator calls here.')
+searchOperatorCallLogFrame.pack(fill='x', expand=False, padx=10, pady=2)
+
+searchOperatorsCallLogLabel = Label(searchOperatorCallLogFrame, text='Operator name:')
+searchOperatorsCallLogLabel.grid(row=0, column=0, padx=10, pady=10)
+
+searchOperatorsCallLogEntry = Entry(searchOperatorCallLogFrame)
+searchOperatorsCallLogEntry.grid(row=0, column=1, padx=10, pady=10)
+
+#search for a specific issue id in call log function
+def searchIssueIdCallLog():
+    searchIssueIdCallLog = searchIssueIdCallLogEntry.get()
+    
+    for record in callLogTree.get_children():
+        callLogTree.delete(record)
+    
+    conn = db.connect('Driver={SQL Server};'
+                  'Server=LAPTOP-JNA8CL44\\SQLEXPRESS;'
+                  'Database=manzaneque_ltd;'
+                  'Trusted_Connection=yes;')
+    
+    c = conn.cursor()
+    c.execute('''   SELECT	    cl.issue_id AS 'Issue ID', 
+                                e.employee_name AS 'Employee name', 
+                                ho.operator_name AS 'Reporting operator', 
+                                cl.call_time AS 'Call time', 
+                                cl.call_date AS 'Call date',
+                                a.asset_type AS 'Asset type', 
+                                a.asset_make AS 'Asset make', 
+                                a.operating_system AS 'OS', 
+                                s.software_name AS 'Software', 
+                                s.[valid_license?] AS 'Has a valid license?',
+                                cl.issue_type AS 'Issue type', 
+                                cl.issue_description AS 'Issue description', 
+                                ho2.operator_name AS 'Assigned operator', 
+                                cl.[issue_closed?] AS 'Closed?',
+                                cl.closed_time AS 'Closed time', 
+                                cl.closed_date AS 'Closed date', 
+                                cl.resolution_description AS 'Resolution description', 
+                                cl.minutes_taken_to_resolve AS 'Time taken to resolve (minutes)'
+                    FROM        call_log cl
+                    INNER JOIN  employee e 
+                    ON          cl.employee_id = e.employee_id
+                    INNER JOIN  helpdesk_operator ho 
+                    ON          cl.operator_id = ho.operator_id
+                    INNER JOIN  asset a 
+                    ON          cl.asset_serial_number = a.serial_number
+                    INNER JOIN  software s 
+                    ON          cl.software_id = s.software_id
+                    INNER JOIN  helpdesk_operator ho2 
+                    ON          cl.assigned_operator = ho2.operator_id
+                    WHERE       cl.issue_id LIKE ?''',
+              ('%' + searchIssueIdCallLog + '%',))
+    nameSearch = c.fetchall()
+    data = 0
+    
+    for record in nameSearch:
+        callLogTree.insert(parent='',
+                           index='end',
+                           iid=data,
+                           text='',
+                           values=(record[0], record[1], record[2], record[3], record[4], record[5],
+                                   record[6], record[7], record[8], record[9], record[10], record[11],
+                                   record[12], record[13], record[14], record[15], record[16],
+                                   record[17]))
+        data += 1
+    
+    conn.commit()
+    conn.close()
+    
+searchEmployeeNameCallLogButton = Button(searchCallLogFrame,
+                             text='Submit',
+                             command=searchIssueIdCallLog)
+searchEmployeeNameCallLogButton.grid(row=0, column=3, padx=10, pady=10)
 
 #search for a specific employee in call log function
 def searchEmployeeNameCallLog():
@@ -187,7 +288,207 @@ def searchEmployeeNameCallLog():
 searchEmployeeNameCallLogButton = Button(searchCallLogFrame,
                              text='Submit',
                              command=searchEmployeeNameCallLog)
-searchEmployeeNameCallLogButton.grid(row=0, column=2, padx=10, pady=10)
+searchEmployeeNameCallLogButton.grid(row=0, column=6, padx=10, pady=10)
+
+#search for a specific issue type in call log function
+def searchIssueTypeCallLog():
+    searchIssueTypeCallLog = issueTypeVariable.get()
+    
+    for record in callLogTree.get_children():
+        callLogTree.delete(record)
+    
+    conn = db.connect('Driver={SQL Server};'
+                  'Server=LAPTOP-JNA8CL44\\SQLEXPRESS;'
+                  'Database=manzaneque_ltd;'
+                  'Trusted_Connection=yes;')
+    
+    c = conn.cursor()
+    c.execute('''   SELECT	    cl.issue_id AS 'Issue ID', 
+                                e.employee_name AS 'Employee name', 
+                                ho.operator_name AS 'Reporting operator', 
+                                cl.call_time AS 'Call time', 
+                                cl.call_date AS 'Call date',
+                                a.asset_type AS 'Asset type', 
+                                a.asset_make AS 'Asset make', 
+                                a.operating_system AS 'OS', 
+                                s.software_name AS 'Software', 
+                                s.[valid_license?] AS 'Has a valid license?',
+                                cl.issue_type AS 'Issue type', 
+                                cl.issue_description AS 'Issue description', 
+                                ho2.operator_name AS 'Assigned operator', 
+                                cl.[issue_closed?] AS 'Closed?',
+                                cl.closed_time AS 'Closed time', 
+                                cl.closed_date AS 'Closed date', 
+                                cl.resolution_description AS 'Resolution description', 
+                                cl.minutes_taken_to_resolve AS 'Time taken to resolve (minutes)'
+                    FROM        call_log cl
+                    INNER JOIN  employee e 
+                    ON          cl.employee_id = e.employee_id
+                    INNER JOIN  helpdesk_operator ho 
+                    ON          cl.operator_id = ho.operator_id
+                    INNER JOIN  asset a 
+                    ON          cl.asset_serial_number = a.serial_number
+                    INNER JOIN  software s 
+                    ON          cl.software_id = s.software_id
+                    INNER JOIN  helpdesk_operator ho2 
+                    ON          cl.assigned_operator = ho2.operator_id
+                    WHERE       cl.issue_type LIKE ?''',
+              ('%' + searchIssueTypeCallLog + '%',))
+    nameSearch = c.fetchall()
+    data = 0
+    
+    for record in nameSearch:
+        callLogTree.insert(parent='',
+                           index='end',
+                           iid=data,
+                           text='',
+                           values=(record[0], record[1], record[2], record[3], record[4], record[5],
+                                   record[6], record[7], record[8], record[9], record[10], record[11],
+                                   record[12], record[13], record[14], record[15], record[16],
+                                   record[17]))
+        data += 1
+    
+    conn.commit()
+    conn.close()
+    
+searchIssueTypeCallLogButton = Button(searchCallLogFrame,
+                             text='Submit',
+                             command=searchIssueTypeCallLog)
+searchIssueTypeCallLogButton.grid(row=0, column=10, padx=10, pady=10)
+
+#search for a specific asset make in call log function
+def searchAssetMakeCallLog():
+    searchAssetMakeCallLog = searchAssetMakeCallLogEntry.get()
+    
+    for record in callLogTree.get_children():
+        callLogTree.delete(record)
+    
+    conn = db.connect('Driver={SQL Server};'
+                  'Server=LAPTOP-JNA8CL44\\SQLEXPRESS;'
+                  'Database=manzaneque_ltd;'
+                  'Trusted_Connection=yes;')
+    
+    c = conn.cursor()
+    c.execute('''   SELECT	    cl.issue_id AS 'Issue ID', 
+                                e.employee_name AS 'Employee name', 
+                                ho.operator_name AS 'Reporting operator', 
+                                cl.call_time AS 'Call time', 
+                                cl.call_date AS 'Call date',
+                                a.asset_type AS 'Asset type', 
+                                a.asset_make AS 'Asset make', 
+                                a.operating_system AS 'OS', 
+                                s.software_name AS 'Software', 
+                                s.[valid_license?] AS 'Has a valid license?',
+                                cl.issue_type AS 'Issue type', 
+                                cl.issue_description AS 'Issue description', 
+                                ho2.operator_name AS 'Assigned operator', 
+                                cl.[issue_closed?] AS 'Closed?',
+                                cl.closed_time AS 'Closed time', 
+                                cl.closed_date AS 'Closed date', 
+                                cl.resolution_description AS 'Resolution description', 
+                                cl.minutes_taken_to_resolve AS 'Time taken to resolve (minutes)'
+                    FROM        call_log cl
+                    INNER JOIN  employee e 
+                    ON          cl.employee_id = e.employee_id
+                    INNER JOIN  helpdesk_operator ho 
+                    ON          cl.operator_id = ho.operator_id
+                    INNER JOIN  asset a 
+                    ON          cl.asset_serial_number = a.serial_number
+                    INNER JOIN  software s 
+                    ON          cl.software_id = s.software_id
+                    INNER JOIN  helpdesk_operator ho2 
+                    ON          cl.assigned_operator = ho2.operator_id
+                    WHERE       a.asset_make LIKE ?''',
+              ('%' + searchAssetMakeCallLog + '%',))
+    nameSearch = c.fetchall()
+    data = 0
+    
+    for record in nameSearch:
+        callLogTree.insert(parent='',
+                           index='end',
+                           iid=data,
+                           text='',
+                           values=(record[0], record[1], record[2], record[3], record[4], record[5],
+                                   record[6], record[7], record[8], record[9], record[10], record[11],
+                                   record[12], record[13], record[14], record[15], record[16],
+                                   record[17]))
+        data += 1
+    
+    conn.commit()
+    conn.close()
+    
+searchAssetMakeCallLogButton = Button(searchCallLogFrame,
+                             text='Submit',
+                             command=searchAssetMakeCallLog)
+searchAssetMakeCallLogButton.grid(row=0, column=14, padx=10, pady=10)
+
+#search for a specific operators open calls in call log function
+def searchOperatorCallLog():
+    searchOperatorCallLog = searchOperatorsCallLogEntry.get()
+    
+    for record in callLogTree.get_children():
+        callLogTree.delete(record)
+    
+    conn = db.connect('Driver={SQL Server};'
+                  'Server=LAPTOP-JNA8CL44\\SQLEXPRESS;'
+                  'Database=manzaneque_ltd;'
+                  'Trusted_Connection=yes;')
+    
+    c = conn.cursor()
+    c.execute('''   SELECT	    cl.issue_id AS 'Issue ID', 
+                                e.employee_name AS 'Employee name', 
+                                ho.operator_name AS 'Reporting operator', 
+                                cl.call_time AS 'Call time', 
+                                cl.call_date AS 'Call date',
+                                a.asset_type AS 'Asset type', 
+                                a.asset_make AS 'Asset make', 
+                                a.operating_system AS 'OS', 
+                                s.software_name AS 'Software', 
+                                s.[valid_license?] AS 'Has a valid license?',
+                                cl.issue_type AS 'Issue type', 
+                                cl.issue_description AS 'Issue description', 
+                                ho2.operator_name AS 'Assigned operator', 
+                                cl.[issue_closed?] AS 'Closed?',
+                                cl.closed_time AS 'Closed time', 
+                                cl.closed_date AS 'Closed date', 
+                                cl.resolution_description AS 'Resolution description', 
+                                cl.minutes_taken_to_resolve AS 'Time taken to resolve (minutes)'
+                    FROM        call_log cl
+                    INNER JOIN  employee e 
+                    ON          cl.employee_id = e.employee_id
+                    INNER JOIN  helpdesk_operator ho 
+                    ON          cl.operator_id = ho.operator_id
+                    INNER JOIN  asset a 
+                    ON          cl.asset_serial_number = a.serial_number
+                    INNER JOIN  software s 
+                    ON          cl.software_id = s.software_id
+                    INNER JOIN  helpdesk_operator ho2 
+                    ON          cl.assigned_operator = ho2.operator_id
+                    WHERE       ho2.operator_name LIKE ?
+                    AND         cl.[issue_closed?] = 0''',
+                    ('%' + searchOperatorCallLog + '%',))
+                    
+    nameSearch = c.fetchall()
+    data = 0
+    
+    for record in nameSearch:
+        callLogTree.insert(parent='',
+                           index='end',
+                           iid=data,
+                           text='',
+                           values=(record[0], record[1], record[2], record[3], record[4], record[5],
+                                   record[6], record[7], record[8], record[9], record[10], record[11],
+                                   record[12], record[13], record[14], record[15], record[16],
+                                   record[17]))
+        data += 1
+    
+    conn.commit()
+    conn.close()
+    
+searchOperatorCallLogButton = Button(searchOperatorCallLogFrame,
+                             text='Submit',
+                             command=searchOperatorCallLog)
+searchOperatorCallLogButton.grid(row=0, column=2, padx=10, pady=10)
 
 #
 #Employee page content
