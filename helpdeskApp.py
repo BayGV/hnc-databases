@@ -2,6 +2,7 @@ import pyodbc as db
 import pandas as pd
 from tkinter import ttk
 from tkinter import *
+from tkinter import messagebox
 
 conn = db.connect('Driver={SQL Server};'
                   'Server=LAPTOP-JNA8CL44\\SQLEXPRESS;'
@@ -132,7 +133,6 @@ searchEmployeeNameCallLogEntry.grid(row=0, column=5, padx=10, pady=10)
 searchIssueTypeCallLogLabel = Label(searchCallLogFrame, text='Issue type:')
 searchIssueTypeCallLogLabel.grid(row=0, column=8, padx=10, pady=10)
 
-#setting the issue types
 issueType = ['Password reset', 'Software update', 'MFA', 'Hardware', 'Networking',
              'Permissions']
 issueTypeVariable = StringVar(searchCallLogFrame)
@@ -157,6 +157,54 @@ searchOperatorsCallLogLabel.grid(row=0, column=0, padx=10, pady=10)
 
 searchOperatorsCallLogEntry = Entry(searchOperatorCallLogFrame)
 searchOperatorsCallLogEntry.grid(row=0, column=1, padx=10, pady=10)
+
+#update call log frame
+updateCallLogFrame = LabelFrame(callLogPage,
+                                text='Update an existing call here.')
+updateCallLogFrame.pack(fill='x', expand=False, padx=10, pady=2)
+
+issueToUpdateCallLogLabel = Label(updateCallLogFrame, text='Issue Id to update*:')
+issueToUpdateCallLogLabel.grid(row=0, column=0, padx=10, pady=10)
+
+issueToUpdateCallLogEntry = Entry(updateCallLogFrame)
+issueToUpdateCallLogEntry.grid(row=0, column=1, padx=10, pady=10)
+
+updateIssueTypeCallLogLabel = Label(updateCallLogFrame, text='Issue type*:')
+updateIssueTypeCallLogLabel.grid(row=0, column=3, padx=10, pady=10)
+
+updateIssueTypeCallLogEntry = OptionMenu(updateCallLogFrame, issueTypeVariable,
+                                         *issueType)
+updateIssueTypeCallLogEntry.grid(row=0, column=4, padx=10, pady=10)
+
+updateIssueClosedCallLogLabel = Label(updateCallLogFrame, text='Issue closed?*:')
+updateIssueClosedCallLogLabel.grid(row=0, column=6, padx=10, pady=10)
+
+updateIssueClosedCallLogEntry = Entry(updateCallLogFrame)
+updateIssueClosedCallLogEntry.grid(row=0, column=7, padx=10, pady=10)
+
+updateResolveDateCallLogLabel = Label(updateCallLogFrame, text='Resolve date (yyyy-mm-dd):')
+updateResolveDateCallLogLabel.grid(row=0, column=9, padx=10, pady=10)
+
+updateResolveDateCallLogEntry = Entry(updateCallLogFrame)
+updateResolveDateCallLogEntry.grid(row=0, column=10, padx=10, pady=10)
+
+updateResolveTimeCallLogLabel = Label(updateCallLogFrame, text='Resolve time (hh:mm):')
+updateResolveTimeCallLogLabel.grid(row=0, column=12, padx=10, pady=10)
+
+updateResolveTimeCallLogEntry = Entry(updateCallLogFrame)
+updateResolveTimeCallLogEntry.grid(row=0, column=13, padx=10, pady=10)
+
+updateTimeTakenCallLogLabel = Label(updateCallLogFrame, text='Time taken (minutes):')
+updateTimeTakenCallLogLabel.grid(row=0, column=15, padx=10, pady=10)
+
+updateTimeTakenCallLogEntry = Entry(updateCallLogFrame)
+updateTimeTakenCallLogEntry.grid(row=0, column=16, padx=10, pady=10)
+
+updateResolveDescriptionCallLogLabel = Label(updateCallLogFrame, text='Resolve description:')
+updateResolveDescriptionCallLogLabel.grid(row=1, column=0, padx=10, pady=10)
+
+updateResolveDescriptionCallLogEntry = Entry(updateCallLogFrame)
+updateResolveDescriptionCallLogEntry.grid(row=1, column=1, padx=10, pady=10)
 
 #search for a specific issue id in call log function
 def searchIssueIdCallLog():
@@ -489,6 +537,57 @@ searchOperatorCallLogButton = Button(searchOperatorCallLogFrame,
                              text='Submit',
                              command=searchOperatorCallLog)
 searchOperatorCallLogButton.grid(row=0, column=2, padx=10, pady=10)
+
+#update a specific call in call log function
+def updateCallLog():
+    issueToUpdateCallLog = issueToUpdateCallLogEntry.get().strip()
+    updateIssueTypeCallLog = issueTypeVariable.get().strip()
+    updateIssueClosedCallLog = updateIssueClosedCallLogEntry.get().strip()
+    updateResolveDateCallLog = updateResolveDateCallLogEntry.get().strip()
+    updateResolveTimeCallLog = updateResolveTimeCallLogEntry.get().strip()
+    updateTimeTakenCallLog = updateTimeTakenCallLogEntry.get().strip()
+    updateResolveDescriptionCallLog = updateResolveDescriptionCallLogEntry.get().strip()
+    
+    conn = db.connect('Driver={SQL Server};'
+                  'Server=LAPTOP-JNA8CL44\\SQLEXPRESS;'
+                  'Database=manzaneque_ltd;'
+                  'Trusted_Connection=yes;')
+    
+    if not updateIssueTypeCallLog or not updateIssueClosedCallLog or not issueToUpdateCallLog:
+        messagebox.showerror('Mandatory fields', 'Fields marked * must be complete.')
+        return
+    try:
+        c = conn.cursor()
+        updateSql = ''' UPDATE      call_log
+                        SET         issue_type = ?,
+                                    [issue_closed?] = ?,
+                                    closed_time = ?,
+                                    closed_date = ?,
+                                    resolution_description = ?,
+                                    minutes_taken_to_resolve = ?
+                        WHERE       issue_id = ?'''
+        c.execute(updateSql, [updateIssueTypeCallLog, updateIssueClosedCallLog,
+                            updateResolveTimeCallLog, updateResolveDateCallLog,
+                            updateResolveDescriptionCallLog, updateTimeTakenCallLog,
+                            issueToUpdateCallLog])
+        conn.commit()
+        messagebox.showinfo('Call log updated', 'Call log update successfully.')
+    except Exception as e:
+        messagebox.showerror('Error', f'An error has occured: {e}. Try again.')
+    finally:
+        conn.close()
+
+    issueToUpdateCallLogEntry.delete(0, END)
+    updateIssueClosedCallLogEntry.delete(0, END)
+    updateResolveDateCallLogEntry.delete(0, END)
+    updateResolveTimeCallLogEntry.delete(0, END)
+    updateTimeTakenCallLogEntry.delete(0, END)
+    updateResolveDescriptionCallLogEntry.delete(0, END)
+    
+updateCallLogButton = Button(updateCallLogFrame,
+                             text='Submit',
+                             command=updateCallLog)
+updateCallLogButton.grid(row=1, column=3, padx=10, pady=10)
 
 #
 #Employee page content
