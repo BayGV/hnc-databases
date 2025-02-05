@@ -206,6 +206,96 @@ updateResolveDescriptionCallLogLabel.grid(row=1, column=0, padx=10, pady=10)
 updateResolveDescriptionCallLogEntry = Entry(updateCallLogFrame)
 updateResolveDescriptionCallLogEntry.grid(row=1, column=1, padx=10, pady=10)
 
+#insert call log frame
+insertCallLogFrame = LabelFrame(callLogPage,
+                                text='Log a new call here.')
+insertCallLogFrame.pack(fill='x', expand=False, padx=10, pady=2)
+
+insertEmployeeIdCallLogLabel = Label(insertCallLogFrame, text='Employee ID*:')
+insertEmployeeIdCallLogLabel.grid(row=0, column=0, padx=10, pady=10)
+
+insertEmployeeIdCallLogEntry = Entry(insertCallLogFrame)
+insertEmployeeIdCallLogEntry.grid(row=0, column=1, padx=10, pady=10)
+
+insertReportingOperatorIdCallLogLabel = Label(insertCallLogFrame, text='Reporting Operator ID*:')
+insertReportingOperatorIdCallLogLabel.grid(row=0, column=3, padx=10, pady=10)
+
+insertReportingOperatorIdCallLogEntry = Entry(insertCallLogFrame)
+insertReportingOperatorIdCallLogEntry.grid(row=0, column=4, padx=10, pady=10)
+
+insertCallTimeCallLogLabel = Label(insertCallLogFrame, text='Call Time (hh:mm*:')
+insertCallTimeCallLogLabel.grid(row=0, column=6, padx=10, pady=10)
+
+insertCallTimeCallLogEntry = Entry(insertCallLogFrame)
+insertCallTimeCallLogEntry.grid(row=0, column=7, padx=10, pady=10)
+
+insertCallDateCallLogLabel = Label(insertCallLogFrame, text='Call Date (yyyy-mm-dd)*:')
+insertCallDateCallLogLabel.grid(row=0, column=9, padx=10, pady=10)
+
+insertCallDateCallLogEntry = Entry(insertCallLogFrame)
+insertCallDateCallLogEntry.grid(row=0, column=10, padx=10, pady=10)
+
+insertAssetSerialNumberCallLogLabel = Label(insertCallLogFrame, text='Asset Number*:')
+insertAssetSerialNumberCallLogLabel.grid(row=0, column=12, padx=10, pady=10)
+
+insertAssetSerialNumberCallLogEntry = Entry(insertCallLogFrame)
+insertAssetSerialNumberCallLogEntry.grid(row=0, column=13, padx=10, pady=10)
+
+insertSoftwareIdCallLogLabel = Label(insertCallLogFrame, text='Software Id:')
+insertSoftwareIdCallLogLabel.grid(row=0, column=15, padx=10, pady=10)
+
+insertSoftwareIdCallLogEntry = Entry(insertCallLogFrame)
+insertSoftwareIdCallLogEntry.grid(row=0, column=16, padx=10, pady=10)
+
+insertIssueTypeCallLogLabel = Label(insertCallLogFrame, text='Issue Type*:')
+insertIssueTypeCallLogLabel.grid(row=1, column=0, padx=10, pady=10)
+
+insertIssueTypeCallLogEntry = OptionMenu(insertCallLogFrame, issueTypeVariable,
+                                         *issueType)
+insertIssueTypeCallLogEntry.grid(row=1, column=1, padx=10, pady=10)
+
+insertIssueDescriptionCallLogLabel = Label(insertCallLogFrame, text='Issue Description*:')
+insertIssueDescriptionCallLogLabel.grid(row=1, column=3, padx=10, pady=10)
+
+insertIssueDescriptionCallLogEntry = Entry(insertCallLogFrame)
+insertIssueDescriptionCallLogEntry.grid(row=1, column=4, padx=10, pady=10)
+
+insertAssignedOperatorCallLogLabel = Label(insertCallLogFrame, text='Assigned Operator*:')
+insertAssignedOperatorCallLogLabel.grid(row=1, column=6, padx=10, pady=10)
+
+insertAssignedOperatorCallLogEntry = Entry(insertCallLogFrame)
+insertAssignedOperatorCallLogEntry.grid(row=1, column=7, padx=10, pady=10)
+
+insertIssueClosedCallLogLabel = Label(insertCallLogFrame, text='Issue Closed?*:')
+insertIssueClosedCallLogLabel.grid(row=1, column=9, padx=10, pady=10)
+
+insertIssueClosedCallLogEntry = Entry(insertCallLogFrame)
+insertIssueClosedCallLogEntry.grid(row=1, column=10, padx=10, pady=10)
+
+insertClosedTimeCallLogLabel = Label(insertCallLogFrame, text='Closed Time (hh:mm):')
+insertClosedTimeCallLogLabel.grid(row=1, column=12, padx=10, pady=10)
+
+insertClosedTimeCallLogEntry = Entry(insertCallLogFrame)
+insertClosedTimeCallLogEntry.grid(row=1, column=13, padx=10, pady=10)
+
+insertClosedDateCallLogLabel = Label(insertCallLogFrame, text='Closed Date (yyyy-mm-dd):')
+insertClosedDateCallLogLabel.grid(row=1, column=15, padx=10, pady=10)
+
+insertClosedDateCallLogEntry = Entry(insertCallLogFrame)
+insertClosedDateCallLogEntry.grid(row=1, column=16, padx=10, pady=10)
+
+insertResolutionDescriptionCallLogLabel = Label(insertCallLogFrame, text='Resolution Description:')
+insertResolutionDescriptionCallLogLabel.grid(row=2, column=0, padx=10, pady=10)
+
+insertResolutionDescriptionCallLogEntry = Entry(insertCallLogFrame)
+insertResolutionDescriptionCallLogEntry.grid(row=2, column=1, padx=10, pady=10)
+
+insertMinutesTakenToResolveCallLogLabel = Label(insertCallLogFrame, text='Time Taken (minutes):')
+insertMinutesTakenToResolveCallLogLabel.grid(row=2, column=3, padx=10, pady=10)
+
+insertMinutesTakenToResolveCallLogEntry = Entry(insertCallLogFrame)
+insertMinutesTakenToResolveCallLogEntry.grid(row=2, column=4, padx=10, pady=10)
+
 #search for a specific issue id in call log function
 def searchIssueIdCallLog():
     searchIssueIdCallLog = searchIssueIdCallLogEntry.get()
@@ -576,18 +666,97 @@ def updateCallLog():
         messagebox.showerror('Error', f'An error has occured: {e}. Try again.')
     finally:
         conn.close()
-
-    issueToUpdateCallLogEntry.delete(0, END)
-    updateIssueClosedCallLogEntry.delete(0, END)
-    updateResolveDateCallLogEntry.delete(0, END)
-    updateResolveTimeCallLogEntry.delete(0, END)
-    updateTimeTakenCallLogEntry.delete(0, END)
-    updateResolveDescriptionCallLogEntry.delete(0, END)
+        issueToUpdateCallLogEntry.delete(0, END)
+        updateIssueClosedCallLogEntry.delete(0, END)
+        updateResolveDateCallLogEntry.delete(0, END)
+        updateResolveTimeCallLogEntry.delete(0, END)
+        updateTimeTakenCallLogEntry.delete(0, END)
+        updateResolveDescriptionCallLogEntry.delete(0, END)
     
 updateCallLogButton = Button(updateCallLogFrame,
                              text='Submit',
                              command=updateCallLog)
 updateCallLogButton.grid(row=1, column=3, padx=10, pady=10)
+
+#insert a new call in call log function
+def insertCallLog():
+    insertEmployeeIdCallLog = insertEmployeeIdCallLogEntry.get().strip()
+    insertReportingOperatorIdCallLog = insertReportingOperatorIdCallLogEntry.get().strip()
+    insertCallTimeCallLog = insertCallTimeCallLogEntry.get().strip()
+    insertCallDateCallLog = insertCallDateCallLogEntry.get().strip()
+    insertAssetSerialNumberCallLog = insertAssetSerialNumberCallLogEntry.get().strip()
+    insertSoftwareIdCallLog = insertSoftwareIdCallLogEntry.get().strip()
+    insertIssueTypeCallLog = issueTypeVariable.get().strip()
+    insertIssueDescriptionCallLog = insertIssueDescriptionCallLogEntry.get().strip()
+    insertAssignedOperatorCallLog = insertAssignedOperatorCallLogEntry.get().strip()
+    insertIssueClosedCallLog = insertIssueClosedCallLogEntry.get().strip()
+    insertClosedTimeCallLog = insertClosedTimeCallLogEntry.get().strip()
+    insertClosedDateCallLog = insertClosedDateCallLogEntry.get().strip()
+    insertResolutionDescriptionCallLog = insertResolutionDescriptionCallLogEntry.get().strip()
+    insertMinutesTakenToResolveCallLog = insertMinutesTakenToResolveCallLogEntry.get().strip()
+    
+    conn = db.connect('Driver={SQL Server};'
+                  'Server=LAPTOP-JNA8CL44\\SQLEXPRESS;'
+                  'Database=manzaneque_ltd;'
+                  'Trusted_Connection=yes;')
+    
+    if (not insertEmployeeIdCallLog or not insertReportingOperatorIdCallLog 
+        or not insertCallTimeCallLog or not insertCallDateCallLog
+        or not insertAssetSerialNumberCallLog or not insertIssueTypeCallLog
+        or not insertIssueDescriptionCallLog or not insertAssignedOperatorCallLog
+        or not insertIssueClosedCallLog):
+        messagebox.showerror('Mandatory fields', 'Fields marked * must be complete.')
+        return
+    try:
+        c = conn.cursor()
+        insertSql = ''' INSERT INTO     call_log	
+                                        (employee_id,
+                                        operator_id,
+                                        call_time,
+                                        call_date,
+                                        asset_serial_number,
+                                        software_id,
+                                        issue_type,
+                                        issue_description,
+                                        assigned_operator,
+                                        [issue_closed?],
+                                        closed_time,
+                                        closed_date,
+                                        resolution_description,
+                                        minutes_taken_to_resolve)
+                        VALUES		    (?, ?, ?, ?, ?, ?, ?,
+                                        ?, ?, ?, ?, ?, ?, ?)'''
+        c.execute(insertSql, [insertEmployeeIdCallLog, insertReportingOperatorIdCallLog,
+                            insertCallTimeCallLog, insertCallDateCallLog,
+                            insertAssetSerialNumberCallLog, insertSoftwareIdCallLog,
+                            insertIssueTypeCallLog, insertIssueDescriptionCallLog,
+                            insertAssignedOperatorCallLog, insertIssueClosedCallLog,
+                            insertClosedTimeCallLog, insertClosedDateCallLog,
+                            insertResolutionDescriptionCallLog, insertMinutesTakenToResolveCallLog])
+        conn.commit()
+        messagebox.showinfo('Call log added', 'Call logged successfully.')
+    except Exception as e:
+        messagebox.showerror('Error', f'An error has occured: {e}. Try again.')
+    finally:
+        conn.close()
+        insertEmployeeIdCallLogEntry.delete(0, END)
+        insertReportingOperatorIdCallLogEntry.delete(0, END)
+        insertCallTimeCallLogEntry.delete(0, END)
+        insertCallDateCallLogEntry.delete(0, END)
+        insertAssetSerialNumberCallLogEntry.delete(0, END)
+        insertSoftwareIdCallLogEntry.delete(0, END)
+        insertIssueDescriptionCallLogEntry.delete(0, END)
+        insertAssignedOperatorCallLogEntry.delete(0, END)
+        insertIssueClosedCallLogEntry.delete(0, END)
+        insertClosedTimeCallLogEntry.delete(0, END)
+        insertClosedDateCallLogEntry.delete(0, END)
+        insertResolutionDescriptionCallLogEntry.delete(0, END)
+        insertMinutesTakenToResolveCallLogEntry.delete(0, END)
+    
+insertCallLogButton = Button(insertCallLogFrame,
+                             text='Submit',
+                             command=insertCallLog)
+insertCallLogButton.grid(row=3, column=0, padx=10, pady=10)
 
 #
 #Employee page content
